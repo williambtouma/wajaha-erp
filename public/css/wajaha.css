@@ -1,0 +1,76 @@
+/* ===================================================
+   هوية وجاهة — تخصيصات لوحة التحكم
+   أخضر: #043C36   ذهبي: #A79570   بيج: #F0EBE1
+   =================================================== */
+
+:root {
+    --wajaha-green: #043c36;
+    --wajaha-green-dark: #032e29;
+    --wajaha-gold: #a79570;
+    --wajaha-gold-light: #c4b596;
+    --wajaha-beige: #f0ebe1;
+    --wajaha-cream: #fcfbf9;
+}
+
+/* خلفية الصفحة */
+.fi-body { background-color: var(--wajaha-cream); }
+
+/* ===== القائمة الجانبية ===== */
+.fi-sidebar.fi-main-sidebar,
+.fi-sidebar .fi-sidebar-nav {
+    background-color: var(--wajaha-green) !important;
+}
+.fi-sidebar.fi-main-sidebar { border-inline-end: 0 !important; }
+
+/* رأس القائمة (الشعار) يبقى فاتحاً ليظهر الشعار بوضوح */
+.fi-sidebar .fi-sidebar-header {
+    background-color: #fff !important;
+    border-bottom: 3px solid var(--wajaha-gold);
+}
+
+/* عناوين المجموعات */
+.fi-sidebar .fi-sidebar-group-label {
+    color: var(--wajaha-gold-light) !important;
+    font-weight: 700;
+}
+.fi-sidebar .fi-sidebar-group-collapse-btn,
+.fi-sidebar .fi-sidebar-group-collapse-btn svg,
+.fi-sidebar .fi-sidebar-group-btn svg {
+    color: var(--wajaha-gold-light) !important;
+}
+.fi-sidebar .fi-sidebar-group + .fi-sidebar-group {
+    border-top: 1px solid rgba(240, 235, 225, 0.12);
+    padding-top: 0.5rem;
+}
+
+/* العناصر */
+.fi-sidebar .fi-sidebar-item-label { color: var(--wajaha-beige) !important; }
+.fi-sidebar .fi-sidebar-item-icon { color: var(--wajaha-gold) !important; }
+.fi-sidebar .fi-sidebar-item-btn { border-radius: 0.6rem; }
+.fi-sidebar .fi-sidebar-item-btn:hover,
+.fi-sidebar .fi-sidebar-item-btn:focus-visible {
+    background-color: rgba(240, 235, 225, 0.10) !important;
+}
+
+/* خطوط الفروع (للبيع / للإيجار) */
+.fi-sidebar .fi-sidebar-item-grouped-border > * { background-color: rgba(240, 235, 225, 0.35) !important; }
+
+/* العنصر المختار: خلفية فاتحة ونص أخضر */
+.fi-sidebar .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background-color: var(--wajaha-beige) !important;
+    box-shadow: inset -4px 0 0 var(--wajaha-gold);
+}
+.fi-sidebar .fi-sidebar-item.fi-active > .fi-sidebar-item-btn .fi-sidebar-item-label {
+    color: var(--wajaha-green) !important;
+    font-weight: 700;
+}
+.fi-sidebar .fi-sidebar-item.fi-active > .fi-sidebar-item-btn .fi-sidebar-item-icon,
+.fi-sidebar .fi-sidebar-item.fi-active > .fi-sidebar-item-btn .fi-sidebar-item-grouped-border > * {
+    color: var(--wajaha-green) !important;
+}
+
+/* ===== جدول العقارات: تلوين الصفوف ===== */
+tr.wajaha-row-available, tr.wajaha-row-available > td { background-color: #ecf8f0 !important; }
+tr.wajaha-row-available:hover, tr.wajaha-row-available:hover > td { background-color: #dcf2e4 !important; }
+tr.wajaha-row-unavailable, tr.wajaha-row-unavailable > td { background-color: #fdeeee !important; }
+tr.wajaha-row-unavailable:hover, tr.wajaha-row-unavailable:hover > td { background-color: #fbdede !important; }

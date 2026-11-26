@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Properties\Tables;
 
+use App\Filament\Resources\Properties\Actions\ChangeAvailabilityAction;
 use App\Models\Lookup;
 use App\Models\Property;
 use Filament\Actions\BulkActionGroup;
@@ -24,6 +25,8 @@ class PropertiesTable
 
         return $table
             ->defaultSort('created_at', 'desc')
+            // تلوين الصفوف: متاح = أخضر فاتح، غير متاح = أحمر فاتح
+            ->recordClasses(fn (Property $record): string => $record->is_available ? 'wajaha-row-available' : 'wajaha-row-unavailable')
             ->columns([
                 ImageColumn::make('images')
                     ->label('')
@@ -82,11 +85,32 @@ class PropertiesTable
                     ->placeholder('—')
                     ->toggleable(),
 
-                TextColumn::make('status')
-                    ->label('الحالة')
+                TextColumn::make('is_available')
+                    ->label('التوفر')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): ?string => Lookup::label('status', $state))
-                    ->color(fn (?string $state): string => Lookup::color('status', $state)),
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'متاح' : 'غير متاح')
+                    ->color(fn (bool $state): string => $state ? 'success' : 'danger')
+                    ->icon(fn (bool $state): string => $state ? 'heroicon-m-check-circle' : 'heroicon-m-x-circle')
+                    ->description(fn (Property $record): ?string => $record->is_available
+                        ? null
+                        : Lookup::label('unavailable_reason', $record->unavailable_reason))
+                    ->tooltip(fn (Property $record): ?string => $record->availability_note)
+                    ->sortable(),
+
+                TextColumn::make('availability_changed_at')
+                    ->label('آخر تحديث للتوفر')
+                    ->since()
+                    ->placeholder('—')
+                    ->tooltip(fn (Property $record): ?string => $record->availabilityChangedBy?->name)
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('documents')
+                    ->label('مستندات')
+                    ->state(fn (Property $record): ?int => count($record->documents ?? []) ?: null)
+                    ->icon('heroicon-m-paper-clip')
+                    ->placeholder('—')
+                    ->toggleable(),
 
                 IconColumn::make('is_featured')
                     ->label('مميز')
@@ -103,11 +127,17 @@ class PropertiesTable
                 $filter('category', 'نوع العقار'),
                 $filter('subtype', 'التصنيف الفرعي'),
                 $filter('city', 'المدينة'),
-                $filter('status', 'الحالة'),
+                TernaryFilter::make('is_available')
+                    ->label('التوفر')
+                    ->placeholder('الكل')
+                    ->trueLabel('متاح')
+                    ->falseLabel('غير متاح'),
+                $filter('unavailable_reason', 'سبب عدم التوفر'),
                 $filter('currency', 'العملة'),
                 TernaryFilter::make('is_featured')->label('مميز'),
             ])
             ->recordActions([
+                ChangeAvailabilityAction::make()->button(),
                 EditAction::make(),
             ])
             ->toolbarActions([

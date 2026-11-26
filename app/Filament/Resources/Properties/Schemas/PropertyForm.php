@@ -6,6 +6,7 @@ use App\Models\Lookup;
 use App\Models\Property;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -69,12 +70,6 @@ class PropertyForm
                             ->default(fn (): ?string => request()->query('transaction'))
                             ->required()
                             ->live(),
-
-                        Select::make('status')
-                            ->label('حالة التوفر')
-                            ->options(fn (): array => Lookup::options('status'))
-                            ->default('available')
-                            ->required(),
 
                         Select::make('readiness')
                             ->label('جاهزية العقار')
@@ -177,6 +172,49 @@ class PropertyForm
                             ->directory('properties')
                             ->visibility('public')
                             ->panelLayout('grid'),
+                    ]),
+
+                Section::make('المستندات والملفات')
+                    ->description('ملفات داخلية خاصة بالعقار (PDF، صور، Word، Excel) — لا تظهر على الموقع')
+                    ->collapsible()
+                    ->schema([
+                        Repeater::make('documents')
+                            ->hiddenLabel()
+                            ->defaultItems(0)
+                            ->addActionLabel('إضافة مستند')
+                            ->collapsible()
+                            ->reorderable()
+                            ->columns(3)
+                            ->itemLabel(fn (array $state): ?string => ($state['title'] ?? null) ?: Lookup::label('document_type', $state['type'] ?? null))
+                            ->schema([
+                                Select::make('type')
+                                    ->label('نوع المستند')
+                                    ->options(fn (): array => Lookup::options('document_type'))
+                                    ->required(),
+
+                                TextInput::make('title')
+                                    ->label('اسم المستند')
+                                    ->placeholder('مثال: سند ملكية الطابق الأول'),
+
+                                FileUpload::make('file')
+                                    ->label('الملف')
+                                    ->required()
+                                    ->disk('local')
+                                    ->directory('property-documents')
+                                    ->visibility('private')
+                                    ->acceptedFileTypes([
+                                        'application/pdf',
+                                        'image/*',
+                                        'application/msword',
+                                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                        'application/vnd.ms-excel',
+                                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                    ])
+                                    ->maxSize(20480)
+                                    ->storeFileNamesIn('file_name')
+                                    ->downloadable()
+                                    ->openable(),
+                            ]),
                     ]),
 
                 Section::make('بيانات المالك')

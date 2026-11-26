@@ -20,12 +20,19 @@ class Lookup extends Model
         'subtype' => 'التصنيفات الفرعية',
         'transaction' => 'أنواع المعاملة',
         'readiness' => 'الجاهزية',
-        'status' => 'حالات التوفر',
+        'unavailable_reason' => 'أسباب عدم التوفر',
         'currency' => 'العملات',
         'city' => 'المدن',
         'condition' => 'حالة العقار',
         'furnishing' => 'التأثيث',
         'ownership_type' => 'صفة المعلن',
+        'document_type' => 'أنواع المستندات',
+    ];
+
+    /** القوائم المرتبطة بعمود في جدول العقارات (لمنع حذف قيمة مستخدمة) */
+    public const PROPERTY_COLUMNS = [
+        'category', 'subtype', 'transaction', 'readiness', 'unavailable_reason',
+        'currency', 'city', 'condition', 'furnishing', 'ownership_type',
     ];
 
     public const COLORS = [
@@ -103,6 +110,10 @@ class Lookup extends Model
     /** هل هذه القيمة مستخدمة في عقار؟ (لمنع حذفها) */
     public function isInUse(): bool
     {
+        if (! in_array($this->list_name, self::PROPERTY_COLUMNS)) {
+            return false;
+        }
+
         return Property::query()
             ->where($this->list_name, $this->key)
             ->when($this->list_name === 'subtype', fn ($q) => $q->where('category', $this->parent_key))

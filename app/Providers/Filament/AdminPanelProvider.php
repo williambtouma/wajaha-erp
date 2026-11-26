@@ -9,6 +9,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -34,6 +35,16 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('images/logo.png'))
             ->font('Noto Kufi Arabic')
             ->darkMode(false)
+            ->sidebarCollapsibleOnDesktop()
+            // ترتيب مجموعات القائمة الجانبية
+            ->navigationGroups([
+                'العقارات المتاحة',
+                'العقارات غير المتاحة',
+                'كل العقارات',
+                'الإعدادات',
+            ])
+            // تصميم وجاهة: القائمة الجانبية + ألوان الصفوف (public/css/wajaha.css)
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => '<link rel="stylesheet" href="' . asset('css/wajaha.css') . '?v=' . @filemtime(public_path('css/wajaha.css')) . '">')
             ->colors([
                 // أخضر وجاهة: الدرجة 600 = #043C36 (لون الأزرار)
                 'primary' => [
