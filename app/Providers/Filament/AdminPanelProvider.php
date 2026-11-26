@@ -9,9 +9,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -28,14 +26,31 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-->brandName('وجاهة')
-->brandLogo(asset('images/logo.png'))
-->brandLogoHeight('3rem')
-->favicon(asset('images/logo.png'))
-->font('Noto Kufi Arabic')
+
+            // ===== هوية وجاهة =====
+            ->brandName('وجاهة')
+            ->brandLogo(asset('images/logo.png'))
+            ->brandLogoHeight('4.5rem')
+            ->favicon(asset('images/logo.png'))
+            ->font('Noto Kufi Arabic')
+            ->darkMode(false)
             ->colors([
-               'primary' => Color::hex('#043C36'),
+                // أخضر وجاهة: الدرجة 600 = #043C36 (لون الأزرار)
+                'primary' => [
+                    50 => 'oklch(0.970 0.011 183.6)',
+                    100 => 'oklch(0.930 0.016 183.6)',
+                    200 => 'oklch(0.860 0.025 183.6)',
+                    300 => 'oklch(0.760 0.033 183.6)',
+                    400 => 'oklch(0.620 0.044 183.6)',
+                    500 => 'oklch(0.470 0.052 183.6)',
+                    600 => 'oklch(0.321 0.055 183.6)',
+                    700 => 'oklch(0.281 0.055 183.6)',
+                    800 => 'oklch(0.251 0.052 183.6)',
+                    900 => 'oklch(0.221 0.049 183.6)',
+                    950 => 'oklch(0.191 0.044 183.6)',
+                ],
             ])
+
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -44,7 +59,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
