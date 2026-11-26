@@ -74,3 +74,15 @@ tr.wajaha-row-available, tr.wajaha-row-available > td { background-color: #ecf8f
 tr.wajaha-row-available:hover, tr.wajaha-row-available:hover > td { background-color: #dcf2e4 !important; }
 tr.wajaha-row-unavailable, tr.wajaha-row-unavailable > td { background-color: #fdeeee !important; }
 tr.wajaha-row-unavailable:hover, tr.wajaha-row-unavailable:hover > td { background-color: #fbdede !important; }
+
+/* ===== لوحة التحكم ===== */
+.fi-wi-stats-overview-stat {
+    border-top: 3px solid var(--wajaha-gold);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+a.fi-wi-stats-overview-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(4, 60, 54, 0.10);
+}
+.fi-wi-chart .fi-section-header-heading,
+.fi-wi-table .fi-ta-header-heading { color: var(--wajaha-green); }
