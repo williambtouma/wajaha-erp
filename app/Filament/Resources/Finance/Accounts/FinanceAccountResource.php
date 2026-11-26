@@ -21,6 +21,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class FinanceAccountResource extends Resource
@@ -81,7 +82,7 @@ class FinanceAccountResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($q) => $q
+            ->modifyQueryUsing(fn (Builder $query) => $query
                 ->withSum(['transactions as total_in' => fn ($q) => $q->where('direction', 'in')], 'amount')
                 ->withSum(['transactions as total_out' => fn ($q) => $q->where('direction', 'out')], 'amount'))
             ->columns([

@@ -124,7 +124,7 @@ class FinanceTransactionResource extends Resource
     {
         return $table
             ->defaultSort('date', 'desc')
-            ->modifyQueryUsing(fn (Builder $q) => $q->with(['account', 'user', 'creator']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['account', 'user', 'creator']))
             ->columns([
                 TextColumn::make('date')
                     ->label('التاريخ')
@@ -179,7 +179,7 @@ class FinanceTransactionResource extends Resource
                         DatePicker::make('until')->label('إلى')->native(false),
                     ])
                     ->columns(2)
-                    ->query(fn (Builder $q, array $data) => $q
+                    ->query(fn (Builder $query, array $data) => $query
                         ->when($data['from'] ?? null, fn ($q, $v) => $q->whereDate('date', '>=', $v))
                         ->when($data['until'] ?? null, fn ($q, $v) => $q->whereDate('date', '<=', $v))),
             ])

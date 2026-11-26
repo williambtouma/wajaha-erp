@@ -37,7 +37,7 @@ class ManageFinanceTransactions extends ManageRecords
     public function table(Table $table): Table
     {
         return parent::table($table)
-            ->modifyQueryUsing(fn (Builder $q) => $q
+            ->modifyQueryUsing(fn (Builder $query) => $query
                 ->when($this->direction, fn ($q, $v) => $q->where('direction', $v)->where('category', '!=', FinanceTransaction::TRANSFER))
                 ->when($this->account, fn ($q, $v) => $q->where('account_id', $v))
                 ->when($this->employee, fn ($q, $v) => $q->where('user_id', $v)));

@@ -78,8 +78,8 @@ class DuePayments extends Page implements HasTable
                     ->trueLabel('المتأخرة فقط')
                     ->falseLabel('القادمة فقط')
                     ->queries(
-                        true: fn (Builder $q) => $q->whereDate('due_date', '<', today()),
-                        false: fn (Builder $q) => $q->whereDate('due_date', '>=', today()),
+                        true: fn (Builder $query) => $query->whereDate('due_date', '<', today()),
+                        false: fn (Builder $query) => $query->whereDate('due_date', '>=', today()),
                     ),
             ])
             ->recordActions([
