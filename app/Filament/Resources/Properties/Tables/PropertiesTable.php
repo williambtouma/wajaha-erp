@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Properties\Tables;
 
+use App\Models\Lookup;
 use App\Models\Property;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -17,12 +18,17 @@ class PropertiesTable
 {
     public static function configure(Table $table): Table
     {
+        $filter = fn (string $list, string $label) => SelectFilter::make($list)
+            ->label($label)
+            ->options(fn (): array => Lookup::options($list));
+
         return $table
             ->defaultSort('created_at', 'desc')
             ->columns([
                 ImageColumn::make('images')
                     ->label('')
                     ->disk('public')
+                    ->visibility('public')
                     ->limit(1)
                     ->square(),
 
@@ -40,23 +46,23 @@ class PropertiesTable
                 TextColumn::make('transaction')
                     ->label('المعاملة')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => Property::TRANSACTIONS[$state] ?? $state)
-                    ->color(fn (string $state): string => $state === 'sale' ? 'primary' : 'info'),
+                    ->formatStateUsing(fn (?string $state): ?string => Lookup::label('transaction', $state))
+                    ->color(fn (?string $state): string => Lookup::color('transaction', $state)),
 
                 TextColumn::make('readiness')
                     ->label('الجاهزية')
                     ->badge()
                     ->placeholder('—')
-                    ->formatStateUsing(fn (?string $state): string => Property::READINESS[$state] ?? '')
-                    ->color(fn (?string $state): string => $state === 'ready' ? 'success' : 'warning')
-                    ->description(fn (Property $record): ?string => $record->readiness === 'under_construction' && $record->expected_delivery
+                    ->formatStateUsing(fn (?string $state): ?string => Lookup::label('readiness', $state))
+                    ->color(fn (?string $state): string => Lookup::color('readiness', $state))
+                    ->description(fn (Property $record): ?string => $record->readiness === Property::UNDER_CONSTRUCTION && $record->expected_delivery
                         ? 'التسليم ' . $record->expected_delivery->format('m/Y')
                         : null),
 
                 TextColumn::make('category')
                     ->label('النوع')
-                    ->formatStateUsing(fn (string $state): string => Property::CATEGORIES[$state] ?? $state)
-                    ->description(fn (Property $record): string => $record->subtypeLabel()),
+                    ->formatStateUsing(fn (?string $state): ?string => Lookup::label('category', $state))
+                    ->description(fn (Property $record): ?string => $record->subtypeLabel()),
 
                 TextColumn::make('price')
                     ->label('السعر')
@@ -68,35 +74,37 @@ class PropertiesTable
                     ->suffix(' م²')
                     ->numeric()
                     ->sortable()
+                    ->placeholder('—')
                     ->toggleable(),
 
                 TextColumn::make('bedrooms')
                     ->label('غرف')
+                    ->placeholder('—')
                     ->toggleable(),
 
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => Property::STATUSES[$state] ?? $state)
-                    ->color(fn (string $state): string => match ($state) {
-                        'available' => 'success',
-                        'reserved' => 'warning',
-                        default => 'gray',
-                    }),
+                    ->formatStateUsing(fn (?string $state): ?string => Lookup::label('status', $state))
+                    ->color(fn (?string $state): string => Lookup::color('status', $state)),
 
                 IconColumn::make('is_featured')
                     ->label('مميز')
                     ->boolean()
+                    ->trueIcon('heroicon-s-star')
+                    ->trueColor('warning')
+                    ->falseIcon('heroicon-o-minus')
+                    ->falseColor('gray')
                     ->toggleable(),
             ])
             ->filters([
-                SelectFilter::make('transaction')->label('نوع المعاملة')->options(Property::TRANSACTIONS),
-                SelectFilter::make('readiness')->label('الجاهزية')->options(Property::READINESS),
-                SelectFilter::make('category')->label('نوع العقار')->options(Property::CATEGORIES),
-                SelectFilter::make('subtype')->label('التصنيف الفرعي')->options(Property::allSubtypes()),
-                SelectFilter::make('city')->label('المدينة')->options(Property::CITIES),
-                SelectFilter::make('status')->label('الحالة')->options(Property::STATUSES),
-                SelectFilter::make('currency')->label('العملة')->options(Property::CURRENCIES),
+                $filter('transaction', 'نوع المعاملة'),
+                $filter('readiness', 'الجاهزية'),
+                $filter('category', 'نوع العقار'),
+                $filter('subtype', 'التصنيف الفرعي'),
+                $filter('city', 'المدينة'),
+                $filter('status', 'الحالة'),
+                $filter('currency', 'العملة'),
                 TernaryFilter::make('is_featured')->label('مميز'),
             ])
             ->recordActions([

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Properties\Schemas;
 
+use App\Models\Lookup;
 use App\Models\Property;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -18,9 +19,10 @@ class PropertyForm
 {
     public static function configure(Schema $schema): Schema
     {
-        $isLand = fn (Get $get): bool => in_array($get('subtype'), ['land', 'farm']);
-        $isForSale = fn (Get $get): bool => $get('transaction') === 'sale';
-        $isUnderConstruction = fn (Get $get): bool => $get('transaction') === 'sale' && $get('readiness') === 'under_construction';
+        // كل القوائم المنسدلة تقرأ قيمها من: الإعدادات ← القوائم المنسدلة
+        $isLand = fn (Get $get): bool => in_array($get('subtype'), Property::LAND_SUBTYPES);
+        $isForSale = fn (Get $get): bool => $get('transaction') === Property::SALE;
+        $isUnderConstruction = fn (Get $get): bool => $isForSale($get) && $get('readiness') === Property::UNDER_CONSTRUCTION;
 
         return $schema
             ->columns(1)
@@ -47,14 +49,15 @@ class PropertyForm
 
                         Select::make('category')
                             ->label('نوع العقار')
-                            ->options(Property::CATEGORIES)
+                            ->options(fn (): array => Lookup::options('category'))
+                            ->default(fn (): ?string => request()->query('category'))
                             ->required()
                             ->live()
                             ->afterStateUpdated(fn (Set $set) => $set('subtype', null)),
 
                         Select::make('subtype')
                             ->label('التصنيف الفرعي')
-                            ->options(fn (Get $get): array => Property::SUBTYPES[$get('category')] ?? [])
+                            ->options(fn (Get $get): array => filled($get('category')) ? Lookup::options('subtype', $get('category')) : [])
                             ->required()
                             ->live()
                             ->disabled(fn (Get $get): bool => blank($get('category')))
@@ -62,13 +65,20 @@ class PropertyForm
 
                         Select::make('transaction')
                             ->label('نوع المعاملة')
-                            ->options(Property::TRANSACTIONS)
+                            ->options(fn (): array => Lookup::options('transaction'))
+                            ->default(fn (): ?string => request()->query('transaction'))
                             ->required()
                             ->live(),
 
+                        Select::make('status')
+                            ->label('حالة التوفر')
+                            ->options(fn (): array => Lookup::options('status'))
+                            ->default('available')
+                            ->required(),
+
                         Select::make('readiness')
                             ->label('جاهزية العقار')
-                            ->options(Property::READINESS)
+                            ->options(fn (): array => Lookup::options('readiness'))
                             ->required($isForSale)
                             ->visible($isForSale)
                             ->live(),
@@ -78,12 +88,6 @@ class PropertyForm
                             ->native(false)
                             ->displayFormat('m/Y')
                             ->visible($isUnderConstruction),
-
-                        Select::make('status')
-                            ->label('حالة التوفر')
-                            ->options(Property::STATUSES)
-                            ->default('available')
-                            ->required(),
                     ]),
 
                 Section::make('الموقع والسعر')
@@ -91,7 +95,7 @@ class PropertyForm
                     ->schema([
                         Select::make('city')
                             ->label('المدينة')
-                            ->options(Property::CITIES)
+                            ->options(fn (): array => Lookup::options('city'))
                             ->required(),
 
                         TextInput::make('area')
@@ -106,7 +110,7 @@ class PropertyForm
 
                         Select::make('currency')
                             ->label('العملة')
-                            ->options(Property::CURRENCIES)
+                            ->options(fn (): array => Lookup::options('currency'))
                             ->default('USD')
                             ->required(),
                     ]),
@@ -144,12 +148,12 @@ class PropertyForm
 
                         Select::make('condition')
                             ->label('حالة العقار')
-                            ->options(Property::CONDITIONS)
+                            ->options(fn (): array => Lookup::options('condition'))
                             ->hidden(fn (Get $get): bool => $isLand($get) || $isUnderConstruction($get)),
 
                         Select::make('furnishing')
                             ->label('التأثيث')
-                            ->options(Property::FURNISHINGS)
+                            ->options(fn (): array => Lookup::options('furnishing'))
                             ->hidden($isLand),
                     ]),
 
@@ -165,8 +169,13 @@ class PropertyForm
                             ->multiple()
                             ->reorderable()
                             ->maxFiles(20)
+                            ->maxSize(15360)
+                            ->imageResizeMode('contain')
+                            ->imageResizeTargetWidth('1920')
+                            ->imageResizeTargetHeight('1920')
                             ->disk('public')
                             ->directory('properties')
+                            ->visibility('public')
                             ->panelLayout('grid'),
                     ]),
 
@@ -184,7 +193,7 @@ class PropertyForm
 
                         Select::make('ownership_type')
                             ->label('صفة المعلن')
-                            ->options(Property::OWNERSHIP_TYPES),
+                            ->options(fn (): array => Lookup::options('ownership_type')),
                     ]),
             ]);
     }

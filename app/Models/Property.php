@@ -17,99 +17,24 @@ class Property extends Model
         'expected_delivery' => 'date',
     ];
 
-    // ===== التصنيفات (نفس الموقع) =====
+    // قيم يعتمد عليها النظام (موجودة في الإعدادات كقيم محمية)
+    public const LAND_SUBTYPES = ['land', 'farm'];
 
-    public const CATEGORIES = [
-        'residential' => 'سكني',
-        'commercial' => 'تجاري',
-    ];
+    public const SALE = 'sale';
 
-    public const SUBTYPES = [
-        'residential' => [
-            'apartment' => 'شقة',
-            'villa' => 'فيلا',
-            'house' => 'فيلا / منزل مستقل',
-            'land' => 'قطعة أرض',
-            'farm' => 'أرض زراعية',
-            'building' => 'مبنى',
-        ],
-        'commercial' => [
-            'shop' => 'متجر',
-            'mall' => 'مجمع تجاري',
-            'villa' => 'فيلا',
-            'house' => 'فيلا / منزل مستقل',
-            'land' => 'قطعة أرض',
-            'building' => 'مبنى',
-        ],
-    ];
+    public const UNDER_CONSTRUCTION = 'under_construction';
 
-    // رمز التصنيف في رقم العقار
-    public const SUBTYPE_CODES = [
-        'apartment' => 'APT', 'villa' => 'VIL', 'house' => 'VIL', 'land' => 'LND',
-        'farm' => 'FRM', 'building' => 'BLD', 'shop' => 'SHP', 'mall' => 'MAL',
-    ];
-
-    public const TRANSACTIONS = [
-        'sale' => 'للبيع',
-        'rent' => 'للإيجار',
-    ];
-
-    // للعقارات المعروضة للبيع فقط
-    public const READINESS = [
-        'ready' => 'جاهز',
-        'under_construction' => 'قيد الإنشاء',
-    ];
-
-    public const STATUSES = [
-        'available' => 'متاح',
-        'reserved' => 'محجوز',
-        'sold' => 'مباع',
-        'rented' => 'مؤجر',
-    ];
-
-    public const CURRENCIES = [
-        'USD' => 'دولار ($)',
-        'SYP' => 'ليرة سورية (ل.س)',
-    ];
-
-    public const CITIES = [
-        'حلب' => 'حلب',
-        'دمشق' => 'دمشق',
-    ];
-
-    public const CONDITIONS = [
-        'new' => 'جديد',
-        'existing' => 'قائم',
-    ];
-
-    public const FURNISHINGS = [
-        'unfurnished' => 'غير مفروش',
-        'semi_furnished' => 'نصف مفروش',
-        'furnished' => 'مفروش',
-    ];
-
-    public const OWNERSHIP_TYPES = [
-        'owner' => 'المالك',
-        'representative' => 'وكيل / مفوض',
-    ];
-
-    /** كل التصنيفات الفرعية بدون تكرار (للفلاتر) */
-    public static function allSubtypes(): array
+    public function subtypeLabel(): ?string
     {
-        return array_merge(...array_values(self::SUBTYPES));
-    }
-
-    public function subtypeLabel(): string
-    {
-        return self::SUBTYPES[$this->category][$this->subtype] ?? $this->subtype;
+        return Lookup::label('subtype', $this->subtype, $this->category);
     }
 
     public function formattedPrice(): string
     {
-        $symbol = $this->currency === 'SYP' ? 'ل.س' : '$';
+        $symbol = Lookup::code('currency', $this->currency) ?? $this->currency;
         $amount = number_format((float) $this->price);
 
-        return $this->currency === 'SYP' ? "{$amount} {$symbol}" : "{$symbol}{$amount}";
+        return $symbol === '$' ? "\${$amount}" : "{$amount} {$symbol}";
     }
 
     // ===== توليد رقم العقار تلقائياً: S-VIL-12 =====
@@ -118,8 +43,8 @@ class Property extends Model
     {
         static::saved(function (Property $property) {
             $prefix = $property->transaction === 'rent' ? 'R' : 'S';
-            $code = self::SUBTYPE_CODES[$property->subtype] ?? 'PRP';
-            $reference = "{$prefix}-{$code}-{$property->id}";
+            $code = Lookup::code('subtype', $property->subtype, $property->category) ?: 'PRP';
+            $reference = strtoupper("{$prefix}-{$code}-{$property->id}");
 
             if ($property->reference !== $reference) {
                 $property->reference = $reference;
