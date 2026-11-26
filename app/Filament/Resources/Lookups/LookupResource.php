@@ -77,7 +77,7 @@ class LookupResource extends Resource
                 Select::make('color')
                     ->label('لون البادج')
                     ->options(Lookup::COLORS)
-                    ->visible(fn (Get $get): bool => in_array($list($get), ['transaction', 'readiness', 'unavailable_reason'])),
+                    ->visible(fn (Get $get): bool => in_array($list($get), ['transaction', 'readiness', 'unavailable_reason', 'lead_type', 'lead_stage', 'lead_priority', 'activity_type'])),
 
                 Toggle::make('is_active')
                     ->label('مفعّل')

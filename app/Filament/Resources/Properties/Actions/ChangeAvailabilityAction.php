@@ -22,6 +22,7 @@ class ChangeAvailabilityAction
             ->label(fn (Property $record): string => $record->is_available ? 'إيقاف التوفر' : 'إعادة الإتاحة')
             ->icon(fn (Property $record): string => $record->is_available ? 'heroicon-o-no-symbol' : 'heroicon-o-check-circle')
             ->color(fn (Property $record): string => $record->is_available ? 'danger' : 'success')
+            ->visible(fn (): bool => (bool) (auth()->user()?->isAdmin() || auth()->user()?->can('ChangeAvailability:Property')))
             ->modalHeading(fn (Property $record): string => $record->is_available
                 ? "إيقاف توفر العقار {$record->reference}"
                 : "إعادة إتاحة العقار {$record->reference}")

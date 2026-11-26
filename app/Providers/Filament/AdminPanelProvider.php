@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -40,6 +41,7 @@ class AdminPanelProvider extends PanelProvider
                 'العقارات المتاحة',
                 'العقارات غير المتاحة',
                 'كل العقارات',
+                'إدارة العملاء',
                 'الإعدادات',
             ])
             // تصميم وجاهة: القائمة الجانبية + ألوان الصفوف (public/css/wajaha.css)
@@ -59,6 +61,32 @@ class AdminPanelProvider extends PanelProvider
                     900 => 'oklch(0.221 0.049 183.6)',
                     950 => 'oklch(0.191 0.044 183.6)',
                 ],
+            ])
+
+            // ===== الأدوار والصلاحيات (Filament Shield) =====
+            ->plugins([
+                FilamentShieldPlugin::make()
+                    ->navigationGroup('الإعدادات')
+                    ->navigationLabel('الأدوار والصلاحيات')
+                    ->navigationIcon('heroicon-o-shield-check')
+                    ->navigationSort(80)
+                    ->modelLabel('دور')
+                    ->pluralModelLabel('الأدوار')
+                    ->gridColumns([
+                        'default' => 1,
+                        'lg' => 2,
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ]),
             ])
 
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')

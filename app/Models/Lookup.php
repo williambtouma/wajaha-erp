@@ -27,6 +27,27 @@ class Lookup extends Model
         'furnishing' => 'التأثيث',
         'ownership_type' => 'صفة المعلن',
         'document_type' => 'أنواع المستندات',
+        // ===== العملاء (CRM) =====
+        'lead_type' => 'العملاء: الأنواع',
+        'lead_stage' => 'العملاء: المراحل',
+        'lead_source' => 'العملاء: المصادر',
+        'lead_priority' => 'العملاء: الأولوية',
+        'lost_reason' => 'العملاء: أسباب الخسارة',
+        'activity_type' => 'العملاء: أنواع المتابعة',
+        'investment_type' => 'المستثمر: نوع الاستثمار',
+        'investment_objective' => 'المستثمر: الهدف',
+        'investment_timeline' => 'المستثمر: الإطار الزمني',
+        'project_type' => 'المطوّر: نوع المشروع',
+        'project_status' => 'المطوّر: حالة المشروع',
+    ];
+
+    /** القوائم المرتبطة بعمود في جدول العملاء */
+    public const LEAD_COLUMNS = [
+        'lead_type' => 'type',
+        'lead_stage' => 'stage',
+        'lead_source' => 'source',
+        'lead_priority' => 'priority',
+        'lost_reason' => 'lost_reason',
     ];
 
     /** القوائم المرتبطة بعمود في جدول العقارات (لمنع حذف قيمة مستخدمة) */
@@ -110,6 +131,10 @@ class Lookup extends Model
     /** هل هذه القيمة مستخدمة في عقار؟ (لمنع حذفها) */
     public function isInUse(): bool
     {
+        if (isset(self::LEAD_COLUMNS[$this->list_name])) {
+            return Lead::query()->where(self::LEAD_COLUMNS[$this->list_name], $this->key)->exists();
+        }
+
         if (! in_array($this->list_name, self::PROPERTY_COLUMNS)) {
             return false;
         }
