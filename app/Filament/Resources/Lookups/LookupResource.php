@@ -29,7 +29,7 @@ class LookupResource extends Resource
 
     protected static ?string $navigationLabel = 'القوائم المنسدلة';
 
-    protected static ?string $modelLabel = 'قيمة';
+    protected static ?string $modelLabel = 'قائمة منسدلة';
 
     protected static ?string $pluralModelLabel = 'القوائم المنسدلة';
 
@@ -77,7 +77,7 @@ class LookupResource extends Resource
                 Select::make('color')
                     ->label('لون البادج')
                     ->options(Lookup::COLORS)
-                    ->visible(fn (Get $get): bool => in_array($list($get), ['transaction', 'readiness', 'unavailable_reason', 'lead_type', 'lead_stage', 'lead_priority', 'activity_type'])),
+                    ->visible(fn (Get $get): bool => in_array($list($get), ['transaction', 'readiness', 'unavailable_reason', 'lead_type', 'lead_stage', 'lead_priority', 'activity_type', 'income_category', 'expense_category'])),
 
                 Toggle::make('is_active')
                     ->label('مفعّل')

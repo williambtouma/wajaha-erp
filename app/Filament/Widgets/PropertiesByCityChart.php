@@ -10,7 +10,7 @@ use Filament\Widgets\ChartWidget;
 /** رسم أعمدة: العقارات حسب المدينة (متاح / غير متاح) */
 class PropertiesByCityChart extends ChartWidget
 {
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
 
     protected ?string $heading = 'العقارات حسب المدينة';
 

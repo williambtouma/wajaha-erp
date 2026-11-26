@@ -13,7 +13,7 @@ use Filament\Widgets\TableWidget;
 /** جدول: أحدث العقارات المضافة */
 class LatestProperties extends TableWidget
 {
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 8;
 
     protected int|string|array $columnSpan = 'full';
 

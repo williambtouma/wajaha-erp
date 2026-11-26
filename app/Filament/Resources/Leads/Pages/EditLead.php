@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\Leads\Pages;
 
+use App\Filament\Resources\Deals\DealResource;
 use App\Filament\Resources\Leads\Actions\ChangeStageAction;
+use App\Models\Deal;
 use App\Filament\Resources\Leads\LeadResource;
+use App\Filament\Resources\Leads\Widgets\MatchingProperties;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Models\Lead;
 use App\Models\Lookup;
@@ -31,6 +34,12 @@ class EditLead extends EditRecord
         ])->filter()->implode(' — ');
     }
 
+    /** المشتري: عقارات مطابقة أسفل الصفحة */
+    protected function getFooterWidgets(): array
+    {
+        return $this->getRecord()->type === Lead::BUYER ? [MatchingProperties::class] : [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -45,6 +54,18 @@ class EditLead extends EditRecord
             ChangeStageAction::make()
                 ->label('تغيير المرحلة')
                 ->after(fn () => $this->refreshFormData(['stage', 'next_follow_up_at'])),
+
+            // تسكير صفقة للمشتري / المستأجر
+            Action::make('closeDeal')
+                ->label('تسكير صفقة')
+                ->icon('heroicon-o-document-check')
+                ->color('success')
+                ->visible(fn (Lead $record): bool => $record->type === Lead::BUYER && ! $record->isClosed()
+                    && (bool) auth()->user()?->can('create', Deal::class))
+                ->url(fn (Lead $record): string => DealResource::getUrl('create', array_filter([
+                    'lead' => $record->id,
+                    'property' => $record->interested_property_id,
+                ]))),
 
             // مالك ← عقار جديد بكبسة
             Action::make('convertToProperty')

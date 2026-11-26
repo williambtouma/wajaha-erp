@@ -39,9 +39,15 @@ class Lookup extends Model
         'investment_timeline' => 'المستثمر: الإطار الزمني',
         'project_type' => 'المطوّر: نوع المشروع',
         'project_status' => 'المطوّر: حالة المشروع',
+        'payment_method' => 'الصفقات: طرق الدفع',
+        'income_category' => 'المالية: تصنيفات الإيرادات',
+        'expense_category' => 'المالية: تصنيفات المصاريف',
     ];
 
     /** القوائم المرتبطة بعمود في جدول العملاء */
+    /** قوائم المالية => عمود التصنيف في الحركات */
+    public const FINANCE_LISTS = ['income_category' => 'in', 'expense_category' => 'out'];
+
     public const LEAD_COLUMNS = [
         'lead_type' => 'type',
         'lead_stage' => 'stage',
@@ -123,6 +129,15 @@ class Lookup extends Model
         return static::entry($list, $key, $parent)?->code;
     }
 
+    /** تنسيق مبلغ بعملته: $120,000 أو 5,000,000 ل.س */
+    public static function money($amount, ?string $currency = 'USD'): string
+    {
+        $symbol = static::code('currency', $currency) ?? $currency;
+        $value = number_format((float) $amount);
+
+        return "\u{2066}" . ($symbol === '$' ? "\${$value}" : "{$value} {$symbol}") . "\u{2069}";
+    }
+
     public static function color(string $list, ?string $key): string
     {
         return static::entry($list, $key)?->color ?? 'gray';
@@ -131,6 +146,13 @@ class Lookup extends Model
     /** هل هذه القيمة مستخدمة في عقار؟ (لمنع حذفها) */
     public function isInUse(): bool
     {
+        if (isset(self::FINANCE_LISTS[$this->list_name])) {
+            return FinanceTransaction::query()
+                ->where('direction', self::FINANCE_LISTS[$this->list_name])
+                ->where('category', $this->key)
+                ->exists();
+        }
+
         if (isset(self::LEAD_COLUMNS[$this->list_name])) {
             return Lead::query()->where(self::LEAD_COLUMNS[$this->list_name], $this->key)->exists();
         }

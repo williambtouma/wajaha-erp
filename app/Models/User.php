@@ -59,6 +59,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->isAdmin() || $this->can('Assign:Lead');
     }
 
+    public function deals(): HasMany
+    {
+        return $this->hasMany(Deal::class, 'agent_id');
+    }
+
     public function leads(): HasMany
     {
         return $this->hasMany(Lead::class, 'assigned_to');

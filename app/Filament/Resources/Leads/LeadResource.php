@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Leads;
 
 use App\Filament\Resources\Leads\Pages\CreateLead;
 use App\Filament\Resources\Leads\Pages\EditLead;
+use App\Filament\Resources\Leads\Pages\LeadsBoard;
 use App\Filament\Resources\Leads\Pages\ListLeads;
 use App\Filament\Resources\Leads\RelationManagers\ActivitiesRelationManager;
 use App\Filament\Resources\Leads\Schemas\LeadForm;
@@ -82,16 +83,23 @@ class LeadResource extends Resource
                 ->isActiveWhen(fn (): bool => $is('due'))
                 ->sort(0),
 
+            NavigationItem::make('لوحة المراحل')
+                ->group(self::NAV_GROUP)
+                ->icon(Heroicon::OutlinedViewColumns)
+                ->url(static::getUrl('board'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(static::getRouteBaseName() . '.board'))
+                ->sort(1),
+
             NavigationItem::make('العملاء النشطون')
                 ->group(self::NAV_GROUP)
                 ->icon(Heroicon::OutlinedUserGroup)
                 ->url($url(['view' => 'open']))
                 ->badge($openByType->sum() ?: null, 'primary')
                 ->isActiveWhen(fn (): bool => $is('open'))
-                ->sort(1),
+                ->sort(2),
         ];
 
-        $sort = 2;
+        $sort = 3;
         foreach (Lookup::options('lead_type') as $typeKey => $typeLabel) {
             $items[] = NavigationItem::make($typeLabel)
                 ->group(self::NAV_GROUP)
@@ -124,6 +132,7 @@ class LeadResource extends Resource
     {
         return [
             'index' => ListLeads::route('/'),
+            'board' => LeadsBoard::route('/board'),
             'create' => CreateLead::route('/create'),
             'edit' => EditLead::route('/{record}/edit'),
         ];

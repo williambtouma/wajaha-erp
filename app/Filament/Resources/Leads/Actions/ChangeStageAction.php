@@ -53,10 +53,26 @@ class ChangeStageAction
             ->action(function (Lead $record, array $data): void {
                 $record->changeStage($data['stage'], $data['note'] ?? null, $data['lost_reason'] ?? null, $data['next_follow_up_at'] ?? null);
 
-                Notification::make()
+                $notification = Notification::make()
                     ->title('تم تحديث المرحلة: ' . Lookup::label('lead_stage', $data['stage']))
-                    ->success()
-                    ->send();
+                    ->success();
+
+                if ($data['stage'] === 'won' && $record->type === Lead::BUYER) {
+                    $notification
+                        ->body('سجّل تفاصيل الصفقة (السعر، العمولة، الدفعات) حتى تكتمل البيانات.')
+                        ->persistent()
+                        ->actions([
+                            Action::make('recordDeal')
+                                ->label('تسجيل الصفقة')
+                                ->button()
+                                ->url(\App\Filament\Resources\Deals\DealResource::getUrl('create', array_filter([
+                                    'lead' => $record->id,
+                                    'property' => $record->interested_property_id,
+                                ]))),
+                        ]);
+                }
+
+                $notification->send();
             });
     }
 }

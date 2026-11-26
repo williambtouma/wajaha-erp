@@ -58,7 +58,7 @@ class PropertyStatsOverview extends StatsOverviewWidget
                 ->url($url(['availability' => 'unavailable'])),
 
             Stat::make('متاح للبيع', number_format($saleCount))
-                ->description('بقيمة $' . number_format($saleValueUsd))
+                ->description("بقيمة \u{2066}\$" . number_format($saleValueUsd) . "\u{2069}")
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('primary')
                 ->url($url(['availability' => 'available', 'transaction' => 'sale'])),

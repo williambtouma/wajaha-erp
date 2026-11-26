@@ -10,7 +10,7 @@ use Filament\Widgets\ChartWidget;
 /** رسم دائري: توزيع العقارات حسب التصنيف */
 class PropertiesBySubtypeChart extends ChartWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
 
     protected ?string $heading = 'توزيع العقارات حسب التصنيف';
 
