@@ -24,6 +24,8 @@ class Property extends Model
         'land_area' => 'decimal:2',
         'expected_delivery' => 'date',
         'availability_changed_at' => 'datetime',
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
 
     protected $attributes = [
@@ -74,6 +76,20 @@ class Property extends Model
         return $this->is_available
             ? 'متاح'
             : 'غير متاح' . ($this->unavailable_reason ? ' - ' . Lookup::label('unavailable_reason', $this->unavailable_reason) : '');
+    }
+
+    // ===== الخريطة =====
+
+    public function hasLocation(): bool
+    {
+        return $this->latitude !== null && $this->longitude !== null;
+    }
+
+    public function firstImageUrl(): ?string
+    {
+        $image = $this->images[0] ?? null;
+
+        return $image ? \Illuminate\Support\Facades\Storage::disk('public')->url($image) : null;
     }
 
     // ===== العرض =====

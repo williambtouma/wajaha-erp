@@ -48,6 +48,14 @@ class AdminPanelProvider extends PanelProvider
             ])
             // تصميم وجاهة: القائمة الجانبية + ألوان الصفوف (public/css/wajaha.css)
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => '<link rel="stylesheet" href="' . asset('css/wajaha.css') . '?v=' . @filemtime(public_path('css/wajaha.css')) . '">')
+            // الخرائط: Leaflet + OpenStreetMap (مجاني، بدون مفتاح)
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => '
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+                <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+                <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+                <script src="' . asset('js/wajaha-map.js') . '?v=' . @filemtime(public_path('js/wajaha-map.js')) . '"></script>')
             ->colors([
                 // أخضر وجاهة: الدرجة 600 = #043C36 (لون الأزرار)
                 'primary' => [

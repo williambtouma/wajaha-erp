@@ -11,6 +11,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -108,6 +109,33 @@ class PropertyForm
                             ->options(fn (): array => Lookup::options('currency'))
                             ->default('USD')
                             ->required(),
+                    ]),
+
+                Section::make('الموقع على الخريطة')
+                    ->description('حدّد موقع العقار ليظهر في صفحة خريطة العقارات')
+                    ->icon('heroicon-o-map-pin')
+                    ->collapsible()
+                    ->columns(2)
+                    ->schema([
+                        ViewField::make('map_picker')
+                            ->hiddenLabel()
+                            ->view('filament.forms.map-picker')
+                            ->dehydrated(false)
+                            ->columnSpanFull(),
+
+                        TextInput::make('latitude')
+                            ->label('خط العرض (Latitude)')
+                            ->numeric()
+                            ->minValue(-90)
+                            ->maxValue(90)
+                            ->extraInputAttributes(['dir' => 'ltr']),
+
+                        TextInput::make('longitude')
+                            ->label('خط الطول (Longitude)')
+                            ->numeric()
+                            ->minValue(-180)
+                            ->maxValue(180)
+                            ->extraInputAttributes(['dir' => 'ltr']),
                     ]),
 
                 Section::make('تفاصيل العقار')

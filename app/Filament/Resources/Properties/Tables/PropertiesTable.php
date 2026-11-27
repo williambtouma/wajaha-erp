@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Properties\Tables;
 use App\Filament\Resources\Properties\Actions\ChangeAvailabilityAction;
 use App\Models\Lookup;
 use App\Models\Property;
+use App\Filament\Pages\PropertiesMap;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -135,8 +137,24 @@ class PropertiesTable
                 $filter('unavailable_reason', 'سبب عدم التوفر'),
                 $filter('currency', 'العملة'),
                 TernaryFilter::make('is_featured')->label('مميز'),
+                TernaryFilter::make('has_location')
+                    ->label('الموقع على الخريطة')
+                    ->placeholder('الكل')
+                    ->trueLabel('محدد')
+                    ->falseLabel('غير محدد')
+                    ->queries(
+                        true: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereNotNull('latitude'),
+                        false: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereNull('latitude'),
+                    ),
             ])
             ->recordActions([
+                Action::make('map')
+                    ->label('')
+                    ->tooltip('عرض على الخريطة')
+                    ->icon('heroicon-o-map-pin')
+                    ->color('gray')
+                    ->visible(fn (Property $record): bool => $record->hasLocation())
+                    ->url(fn (Property $record): string => PropertiesMap::getUrl(['property' => $record->id])),
                 ChangeAvailabilityAction::make()->button(),
                 EditAction::make(),
             ])
